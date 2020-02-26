@@ -1,5 +1,6 @@
 import { Observable, isObservable, OperatorFunction, of, UnaryFunction } from "rxjs";
 import { mergeAll, map, startWith } from "rxjs/operators";
+import { LifecycleEntry, recordLifecycle, isLifecycleDatumEntry } from "./recordLifecycle";
 
 export const observableReferenceType = "ref";
 export interface ObservableReference {
@@ -26,16 +27,17 @@ type UnrollObservable<T> =
 
 export type ObservableChainData<T> =
     | ObservableReference
-    | ObservableDatum<UnrollObservable<UnrollObservable<UnrollObservable<UnrollObservable<UnrollObservable<T>>>>>>;
+    | ObservableDatum<LifecycleEntry<UnrollObservable<UnrollObservable<UnrollObservable<UnrollObservable<UnrollObservable<T>>>>>>>;
 
 export function traceHierarchy<T>(): OperatorFunction<T, ObservableChainData<T>> {
     let nextObservable = 0;
     function dothething<T>(currentIndex: number) {
         return (orig: Observable<T>): Observable<ObservableChainData<T>> => orig.pipe(
-            map((data: any): Observable<any> => {
-                if (isObservable<any>(data)) {
+            recordLifecycle(),
+            map((data: LifecycleEntry<any>): Observable<any> => {
+                if (isLifecycleDatumEntry(data) && isObservable<any>(data.datum)) {
                     const newIndex = nextObservable++;
-                    return data.pipe(dothething(newIndex), startWith(createRef(currentIndex, newIndex)), );
+                    return data.datum.pipe(dothething(newIndex), startWith(createRef(currentIndex, newIndex)), );
                 } else {
                     // This `as any` is becase TypeScript can't determine that `data` here is guaranteed not to be an Observable,
                     // despite the above `if` condition. So, TypeScript vanishes in a poof of logic.
