@@ -20,10 +20,13 @@ export class FakeScheduler implements SchedulerLike {
         }
         context.work = work;
         context.add(() => {
+            // unsubscribing functionality
             let index: number;
             do {
                 index = this.queued.findIndex(e => e.context === context);
-                this.queued.splice(index, 1);
+                if (index !== -1) {
+                    this.queued.splice(index, 1);
+                }
             } while (index !== -1);
         });
         return context.schedule(state, delay);
@@ -44,5 +47,10 @@ export class FakeScheduler implements SchedulerLike {
             next.context.work(next.state);
             executionCount++;
         }
+        return executionCount;
+    }
+
+    scheduledCount() {
+        return this.queued.length;
     }
 }

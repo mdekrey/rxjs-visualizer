@@ -100,4 +100,15 @@ describe("FakeScheduler", () => {
         .map((_, idx) => ({ time: 1000 * (idx + 1), value: idx }))
     );
   });
+
+  it("can work with multiple observables", () => {
+    const targetScheduler = new FakeScheduler();
+    let resultCounts = [0, 0];
+    interval(1000, targetScheduler).pipe(take(10)).subscribe(_ => resultCounts[0]++);
+    interval(1000, targetScheduler).pipe(take(20)).subscribe(_ => resultCounts[1]++);
+
+    targetScheduler.execute();
+
+    expect(resultCounts).toEqual([10,20]);
+  });
 });
