@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback } from 'react';
+import React, { useReducer, useCallback, useMemo } from 'react';
 import { range } from 'rxjs';
 import { DrawObservable } from '../utils/DrawObservable';
 import { ResizeListener, Bounds } from '../utils/ResizeListener';
@@ -37,14 +37,16 @@ export function BasicExample() {
     const [state, dispatch] = useReducer(reducer, initialState);
     const setSvgSize = useCallback((svgSize: Bounds) => dispatch(createSetSvgSizeAction(svgSize)), [dispatch]);
     const setContainerSize = useCallback((containerSize: Bounds) => dispatch(createSetContainerSizeAction(containerSize)), [dispatch]);
+    const ResizeSvg = useMemo(() => ResizeListener("svg"), []);
+    const ResizeG = useMemo(() => ResizeListener<React.SVGProps<SVGGElement>>("g"), []);
 
     const {x, y} = state.offset;
 
     return (
-        <ResizeListener element="svg" onResize={setSvgSize}>
-            <ResizeListener onResize={setContainerSize} style={{transform:`translate(${x}px, ${y}px)`}}>
+        <ResizeSvg onResize={setSvgSize}>
+            <ResizeG onResize={setContainerSize} style={{transform:`translate(${x}px, ${y}px)`}}>
                 <DrawObservable target={range(0, 5)} x={(_, idx) => idx * 10} element={d => <text>{d}</text>} keyGenerator={(_, idx) => idx} />
-            </ResizeListener>
-        </ResizeListener>
+            </ResizeG>
+        </ResizeSvg>
     );
 }

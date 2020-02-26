@@ -1,6 +1,7 @@
-import React, { ReactNode, ElementType, useRef, useEffect, useMemo } from "react";
+import React, { ReactNode, useRef, useEffect, useMemo } from "react";
 import { Subject } from "rxjs";
 import { distinctUntilChanged } from "rxjs/operators";
+import { singleElementDecorator } from "./singleElementDecorator";
 
 export interface Bounds {
     top: number;
@@ -9,44 +10,43 @@ export interface Bounds {
     width: number;
 };
 
-export type ElementDecorator<T> = {
-    element: ElementType<T>;
-} & T;
-
-export type ResizeListenerProps<T> = {
+export interface ResizeListenerProps {
     children: ReactNode;
     onResize: (size: Bounds) => void;
-} & ElementDecorator<T>;
+};
 
-export function ResizeListener(props: Omit<ResizeListenerProps<React.SVGProps<SVGGElement>>, "element">): JSX.Element;
-export function ResizeListener<T>(props: ResizeListenerProps<T>): JSX.Element;
-export function ResizeListener({ element: Element = "g", children, onResize, ...props }: Partial<ResizeListenerProps<any>>) {
+function boundsWithin(current: Element, within: Element): Bounds {
+    const currentBB = current.getBoundingClientRect();
+    const parent = within.getBoundingClientRect();
+    return {
+        top: currentBB.top - parent.top,
+        left: currentBB.left - parent.left,
+        height: currentBB.height,
+        width: currentBB.width,
+    };
+}
+function boundsSame(a: Bounds, b: Bounds) {
+    return a.top === b.top &&
+        a.left === b.left &&
+        a.height === b.height &&
+        a.width === b.width
+}
+
+export const ResizeListener = singleElementDecorator((Element, { children, onResize, ...props }: ResizeListenerProps) => {
     const el = useRef<Element>(null);
     const sizes = useMemo(() => new Subject<Bounds>(), [])
 
     useEffect(() => {
         const result = setInterval(() => {
             if (!el.current || !el.current.parentElement) return;
-            const current = el.current.getBoundingClientRect();
-            const parent = el.current.parentElement.getBoundingClientRect();
-            const rect: Bounds = {
-                top: current.top - parent.top,
-                left: current.left - parent.left,
-                height: current.height,
-                width: current.width,
-            };
-            sizes.next(rect);
+            sizes.next(boundsWithin(el.current, el.current.parentElement));
         }, 100);
         return () => clearInterval(result);
     }, [sizes]);
 
     useEffect(() => {
         const subscription = sizes
-            .pipe(distinctUntilChanged((a, b) =>
-                a.top === b.top &&
-                a.left === b.left &&
-                a.height === b.height &&
-                a.width === b.width))
+            .pipe(distinctUntilChanged(boundsSame))
             .subscribe(onResize);
         return () => subscription.unsubscribe();
     }, [sizes, onResize]);
@@ -56,4 +56,4 @@ export function ResizeListener({ element: Element = "g", children, onResize, ...
             {children}
         </Element>
     )
-}
+});
