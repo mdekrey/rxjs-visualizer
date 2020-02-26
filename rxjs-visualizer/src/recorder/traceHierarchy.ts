@@ -1,5 +1,5 @@
 import { Observable, isObservable, OperatorFunction, of, UnaryFunction } from "rxjs";
-import { concatAll, map, startWith } from "rxjs/operators";
+import { mergeAll, map, startWith } from "rxjs/operators";
 
 export const observableReferenceType = "ref";
 export interface ObservableReference {
@@ -37,7 +37,7 @@ export function traceHierarchy<T>(): OperatorFunction<T, ObservableChainData<T>>
                     return of({ type: observableDatumType, observable: currentIndex, data: data as any });
                 }
             }),
-            concatAll()
+            mergeAll()
         ) as Observable<any>;
     }
 
