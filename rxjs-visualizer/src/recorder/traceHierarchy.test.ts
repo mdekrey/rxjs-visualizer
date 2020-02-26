@@ -68,9 +68,9 @@ describe("traceHierarchy", () => {
     ]);
   });
 
-  it("interleaves observables", async () => {
+  it("interleaves observables", () => {
     const scheduler = new FakeScheduler();
-    const historyPromise = recordAsync(
+    const history = record(
       interval(5, scheduler).pipe(
         take(3),
         map(idx =>
@@ -80,10 +80,9 @@ describe("traceHierarchy", () => {
           )
         ),
         traceHierarchy()
-      )
+      ),
+      () => scheduler.execute()
     );
-    scheduler.execute();
-    const history = await historyPromise;
 
     const temp = history[0];
     if (temp.type === observableDatumType) {
