@@ -14,4 +14,16 @@ describe("record", () => {
 
     expect(history).toBeUndefined();
   });
+
+  it("allows middleware",  () => {
+    let callbackCalled = false;
+    let history: number[];
+    history = record(range(0, 5), () => {
+        expect(history).toBeUndefined();
+        callbackCalled = true;
+    });
+
+    expect(callbackCalled).toBeTruthy();
+    expect(history).toEqual([0, 1, 2, 3, 4]);
+  });
 });
