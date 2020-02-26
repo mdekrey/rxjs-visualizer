@@ -2,35 +2,12 @@ import React, { ReactNode, useRef, useEffect, useMemo } from "react";
 import { Subject } from "rxjs";
 import { distinctUntilChanged } from "rxjs/operators";
 import { singleElementDecorator } from "./singleElementDecorator";
-
-export interface Bounds {
-    top: number;
-    left: number;
-    height: number;
-    width: number;
-};
+import { Bounds, boundsWithin, boundsSame } from "./Bounds";
 
 export interface ResizeListenerProps {
     children: ReactNode;
     onResize: (size: Bounds) => void;
 };
-
-function boundsWithin(current: Element, within: Element): Bounds {
-    const currentBB = current.getBoundingClientRect();
-    const parent = within.getBoundingClientRect();
-    return {
-        top: currentBB.top - parent.top,
-        left: currentBB.left - parent.left,
-        height: currentBB.height,
-        width: currentBB.width,
-    };
-}
-function boundsSame(a: Bounds, b: Bounds) {
-    return a.top === b.top &&
-        a.left === b.left &&
-        a.height === b.height &&
-        a.width === b.width
-}
 
 export const ResizeListener = singleElementDecorator((Element, { children, onResize, ...props }: ResizeListenerProps) => {
     const el = useRef<Element>(null);
