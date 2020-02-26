@@ -7,7 +7,7 @@ import {
   observableDatumType
 } from "./traceHierarchy";
 import { FakeScheduler } from "../scheduler";
-import { recordAsync } from "./recordAsync";
+import { collapseTime } from "./collapseTime";
 import { addTime } from "./addTime";
 
 describe("traceHierarchy", () => {
@@ -116,21 +116,22 @@ describe("traceHierarchy", () => {
           )
         ),
         traceHierarchy(),
-        addTime(scheduler)
+        addTime(scheduler),
+        map(collapseTime)
       ),
       () => scheduler.execute()
     );
 
     expect(history).toEqual([
-      { original: { type: observableReferenceType, observable: 0, child: 1 }, time: 5 },
-      { original: { type: observableDatumType, observable: 1, datum: { idx: 0, idx2: 0 } }, time: 9 },
-      { original: { type: observableReferenceType, observable: 0, child: 2 }, time: 10 },
-      { original: { type: observableDatumType, observable: 1, datum: { idx: 0, idx2: 1 } }, time: 13 },
-      { original: { type: observableDatumType, observable: 2, datum: { idx: 1, idx2: 0 } }, time: 14 },
-      { original: { type: observableReferenceType, observable: 0, child: 3 }, time: 15 },
-      { original: { type: observableDatumType, observable: 2, datum: { idx: 1, idx2: 1 } }, time: 18 },
-      { original: { type: observableDatumType, observable: 3, datum: { idx: 2, idx2: 0 } }, time: 19 },
-      { original: { type: observableDatumType, observable: 3, datum: { idx: 2, idx2: 1 } }, time: 23 }
+      { type: observableReferenceType, observable: 0, child: 1, time: 5 },
+      { type: observableDatumType, observable: 1, datum: { idx: 0, idx2: 0 }, time: 9 },
+      { type: observableReferenceType, observable: 0, child: 2, time: 10 },
+      { type: observableDatumType, observable: 1, datum: { idx: 0, idx2: 1 }, time: 13 },
+      { type: observableDatumType, observable: 2, datum: { idx: 1, idx2: 0 }, time: 14 },
+      { type: observableReferenceType, observable: 0, child: 3, time: 15 },
+      { type: observableDatumType, observable: 2, datum: { idx: 1, idx2: 1 }, time: 18 },
+      { type: observableDatumType, observable: 3, datum: { idx: 2, idx2: 0 }, time: 19 },
+      { type: observableDatumType, observable: 3, datum: { idx: 2, idx2: 1 }, time: 23 }
     ]);
   });
 });
