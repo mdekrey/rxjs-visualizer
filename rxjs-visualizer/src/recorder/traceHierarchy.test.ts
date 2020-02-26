@@ -8,6 +8,7 @@ import {
 } from "./traceHierarchy";
 import { FakeScheduler } from "../scheduler";
 import { recordAsync } from "./recordAsync";
+import { addTime } from "./addTime";
 
 describe("traceHierarchy", () => {
   it("creates a single array from nested observables", () => {
@@ -21,19 +22,19 @@ describe("traceHierarchy", () => {
     const temp = history[0];
     if (temp.type === observableDatumType) {
       // this is a type-check test: the compiler will error here if it's no good
-      const data: { idx: number; idx2: number } = temp.data;
+      const datum: { idx: number; idx2: number } = temp.datum;
     }
 
     expect(history).toEqual([
       { observable: 0, type: observableReferenceType, child: 1 },
-      { observable: 1, type: observableDatumType, data: { idx: 0, idx2: 0 } },
-      { observable: 1, type: observableDatumType, data: { idx: 0, idx2: 1 } },
+      { observable: 1, type: observableDatumType, datum: { idx: 0, idx2: 0 } },
+      { observable: 1, type: observableDatumType, datum: { idx: 0, idx2: 1 } },
       { observable: 0, type: observableReferenceType, child: 2 },
-      { observable: 2, type: observableDatumType, data: { idx: 1, idx2: 0 } },
-      { observable: 2, type: observableDatumType, data: { idx: 1, idx2: 1 } },
+      { observable: 2, type: observableDatumType, datum: { idx: 1, idx2: 0 } },
+      { observable: 2, type: observableDatumType, datum: { idx: 1, idx2: 1 } },
       { observable: 0, type: observableReferenceType, child: 3 },
-      { observable: 3, type: observableDatumType, data: { idx: 2, idx2: 0 } },
-      { observable: 3, type: observableDatumType, data: { idx: 2, idx2: 1 } }
+      { observable: 3, type: observableDatumType, datum: { idx: 2, idx2: 0 } },
+      { observable: 3, type: observableDatumType, datum: { idx: 2, idx2: 1 } }
     ]);
   });
 
@@ -49,22 +50,22 @@ describe("traceHierarchy", () => {
     const temp = history[0];
     if (temp.type === observableDatumType) {
       // this is a type-check test: the compiler will error here if it's no good
-      const data: { idx: number; idx2: number } | number = temp.data;
+      const datum: { idx: number; idx2: number } | number = temp.datum;
     }
 
     expect(history).toEqual([
-      { observable: 0, type: observableDatumType, data: 0 },
+      { observable: 0, type: observableDatumType, datum: 0 },
       { observable: 0, type: observableReferenceType, child: 1 },
-      { observable: 1, type: observableDatumType, data: { idx: 0, idx2: 0 } },
-      { observable: 1, type: observableDatumType, data: { idx: 0, idx2: 1 } },
-      { observable: 0, type: observableDatumType, data: 1 },
+      { observable: 1, type: observableDatumType, datum: { idx: 0, idx2: 0 } },
+      { observable: 1, type: observableDatumType, datum: { idx: 0, idx2: 1 } },
+      { observable: 0, type: observableDatumType, datum: 1 },
       { observable: 0, type: observableReferenceType, child: 2 },
-      { observable: 2, type: observableDatumType, data: { idx: 1, idx2: 0 } },
-      { observable: 2, type: observableDatumType, data: { idx: 1, idx2: 1 } },
-      { observable: 0, type: observableDatumType, data: 2 },
+      { observable: 2, type: observableDatumType, datum: { idx: 1, idx2: 0 } },
+      { observable: 2, type: observableDatumType, datum: { idx: 1, idx2: 1 } },
+      { observable: 0, type: observableDatumType, datum: 2 },
       { observable: 0, type: observableReferenceType, child: 3 },
-      { observable: 3, type: observableDatumType, data: { idx: 2, idx2: 0 } },
-      { observable: 3, type: observableDatumType, data: { idx: 2, idx2: 1 } }
+      { observable: 3, type: observableDatumType, datum: { idx: 2, idx2: 0 } },
+      { observable: 3, type: observableDatumType, datum: { idx: 2, idx2: 1 } }
     ]);
   });
 
@@ -74,7 +75,7 @@ describe("traceHierarchy", () => {
       interval(5, scheduler).pipe(
         take(3),
         map(idx =>
-          interval(5, scheduler).pipe(
+          interval(4, scheduler).pipe(
             take(2),
             map(idx2 => ({ idx, idx2 }))
           )
@@ -87,19 +88,49 @@ describe("traceHierarchy", () => {
     const temp = history[0];
     if (temp.type === observableDatumType) {
       // this is a type-check test: the compiler will error here if it's no good
-      const data: { idx: number; idx2: number } = temp.data;
+      const datum: { idx: number; idx2: number } = temp.datum;
     }
 
     expect(history).toEqual([
       { observable: 0, type: observableReferenceType, child: 1 },
-      { observable: 1, type: observableDatumType, data: { idx: 0, idx2: 0 } },
+      { observable: 1, type: observableDatumType, datum: { idx: 0, idx2: 0 } },
       { observable: 0, type: observableReferenceType, child: 2 },
-      { observable: 1, type: observableDatumType, data: { idx: 0, idx2: 1 } },
-      { observable: 2, type: observableDatumType, data: { idx: 1, idx2: 0 } },
+      { observable: 1, type: observableDatumType, datum: { idx: 0, idx2: 1 } },
+      { observable: 2, type: observableDatumType, datum: { idx: 1, idx2: 0 } },
       { observable: 0, type: observableReferenceType, child: 3 },
-      { observable: 2, type: observableDatumType, data: { idx: 1, idx2: 1 } },
-      { observable: 3, type: observableDatumType, data: { idx: 2, idx2: 0 } },
-      { observable: 3, type: observableDatumType, data: { idx: 2, idx2: 1 } }
+      { observable: 2, type: observableDatumType, datum: { idx: 1, idx2: 1 } },
+      { observable: 3, type: observableDatumType, datum: { idx: 2, idx2: 0 } },
+      { observable: 3, type: observableDatumType, datum: { idx: 2, idx2: 1 } }
+    ]);
+  });
+
+  it("doesn't change emit times", () => {
+    const scheduler = new FakeScheduler();
+    const history = record(
+      interval(5, scheduler).pipe(
+        take(3),
+        map(idx =>
+          interval(4, scheduler).pipe(
+            take(2),
+            map(idx2 => ({ idx, idx2 }))
+          )
+        ),
+        traceHierarchy(),
+        addTime(scheduler)
+      ),
+      () => scheduler.execute()
+    );
+
+    expect(history).toEqual([
+      { original: { type: observableReferenceType, observable: 0, child: 1 }, time: 5 },
+      { original: { type: observableDatumType, observable: 1, datum: { idx: 0, idx2: 0 } }, time: 9 },
+      { original: { type: observableReferenceType, observable: 0, child: 2 }, time: 10 },
+      { original: { type: observableDatumType, observable: 1, datum: { idx: 0, idx2: 1 } }, time: 13 },
+      { original: { type: observableDatumType, observable: 2, datum: { idx: 1, idx2: 0 } }, time: 14 },
+      { original: { type: observableReferenceType, observable: 0, child: 3 }, time: 15 },
+      { original: { type: observableDatumType, observable: 2, datum: { idx: 1, idx2: 1 } }, time: 18 },
+      { original: { type: observableDatumType, observable: 3, datum: { idx: 2, idx2: 0 } }, time: 19 },
+      { original: { type: observableDatumType, observable: 3, datum: { idx: 2, idx2: 1 } }, time: 23 }
     ]);
   });
 });

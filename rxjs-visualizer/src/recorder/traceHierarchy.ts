@@ -7,14 +7,19 @@ export interface ObservableReference {
     observable: number;
     child: number;
 }
+function createRef(observable: number, child: number): ObservableReference {
+    return { type: observableReferenceType, observable, child };
+}
 
 export const observableDatumType = "datum";
 export interface ObservableDatum<T> {
     type: typeof observableDatumType;
     observable: number;
-    data: T extends Observable<any> ? never : T;
+    datum: T extends Observable<any> ? never : T;
 }
-type SafeObservableDatum<T> =  T extends Observable<any> ? never : ObservableDatum<T>;
+function createDatum<T>(observable: number, datum: T): ObservableDatum<T> {
+    return { type: observableDatumType, observable, datum: datum as any };
+}
 
 type UnrollObservable<T> =
     T extends Observable<infer U> ? U : T;
@@ -30,11 +35,11 @@ export function traceHierarchy<T>(): OperatorFunction<T, ObservableChainData<T>>
             map((data: any): Observable<any> => {
                 if (isObservable<any>(data)) {
                     const newIndex = nextObservable++;
-                    return data.pipe(dothething(newIndex), startWith({ type: observableReferenceType, observable: currentIndex, child: newIndex }), );
+                    return data.pipe(dothething(newIndex), startWith(createRef(currentIndex, newIndex)), );
                 } else {
                     // This `as any` is becase TypeScript can't determine that `data` here is guaranteed not to be an Observable,
                     // despite the above `if` condition. So, TypeScript vanishes in a poof of logic.
-                    return of({ type: observableDatumType, observable: currentIndex, data: data as any });
+                    return of(createDatum(currentIndex, data as any));
                 }
             }),
             mergeAll()
