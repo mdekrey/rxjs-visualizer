@@ -35,6 +35,9 @@ function reducer(prevState: State, { outerSize, innerSize }: Action): State {
 
     if (offset.x === prevState.offset.x && offset.y === prevState.offset.y && prevState.scale === scale)
         return prevState;
+    if (isNaN(offset.x)) return prevState;
+    if (isNaN(offset.y)) return prevState;
+    if (isNaN(scale)) return prevState;
 
     return { outerSize: outerSize, innerSize: innerSize, offset, scale };
 }
@@ -53,8 +56,9 @@ export const CenteredElement = singleElementDecorator((Element, { children, styl
     useEffect(() => {
         const result = setInterval(() => {
             if (!el.current || !el.current.parentElement) return;
+            const innerSize = boundsWithin(el.current, el.current.parentElement);
             const outerSize = scaledBounds(el.current, el.current.parentElement);
-            dispatch({ innerSize: boundsWithin(el.current, el.current.parentElement), outerSize });
+            dispatch({ innerSize, outerSize });
         }, 100);
         return () => clearInterval(result);
     }, [dispatch]);

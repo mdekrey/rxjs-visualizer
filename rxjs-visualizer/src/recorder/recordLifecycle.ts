@@ -30,6 +30,9 @@ export function isLifecycleCompleteEntry<T>(t: LifecycleEntry<T>): t is Lifecycl
 export function isLifecycleStartEntry<T>(t: LifecycleEntry<T>): t is LifecycleStartEntry {
     return t.hasOwnProperty("start");
 }
+export function isLifecycleTerminatorEntry<T>(t: LifecycleEntry<T>): t is (LifecycleErrorEntry | LifecycleCompleteEntry) {
+    return isLifecycleErrorEntry(t) || isLifecycleCompleteEntry(t);
+}
 
 function createDatum<T>(datum: T): LifecycleDatumEntry<T> {
     return { datum };

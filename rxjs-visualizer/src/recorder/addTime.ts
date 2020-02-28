@@ -1,4 +1,4 @@
-import { SchedulerLike, OperatorFunction } from "rxjs";
+import { SchedulerLike, OperatorFunction, asyncScheduler } from "rxjs";
 import { map } from "rxjs/operators";
 
 export type WithTime<T> = {
@@ -7,7 +7,7 @@ export type WithTime<T> = {
 };
 
 export function addTime<T>(
-  scheduler: SchedulerLike
+  scheduler: SchedulerLike = asyncScheduler
 ): OperatorFunction<T, WithTime<T>> {
   return map((original: T) => ({
     original,
