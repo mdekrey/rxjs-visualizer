@@ -1,6 +1,6 @@
 import { OperatorFunction } from "rxjs";
-import { reduce } from "rxjs/operators";
+import { scan } from "rxjs/operators";
 
 export function accumulate<T>(): OperatorFunction<T, T[]> {
-    return reduce((acc, next) => [...acc, next], [] as T[]);
+    return scan((acc, next) => [...acc, next], [] as T[]);
 }
