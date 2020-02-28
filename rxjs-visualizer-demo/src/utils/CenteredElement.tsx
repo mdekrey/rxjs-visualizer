@@ -1,6 +1,7 @@
 import React, { ReactNode, useRef, useEffect, useReducer, CSSProperties } from "react";
 import { singleElementDecorator } from "./singleElementDecorator";
 import { boundsWithin, Bounds, scaledBounds } from "./Bounds";
+import { round } from "./round";
 
 type State = typeof initialState;
 
@@ -10,17 +11,26 @@ const initialState = Object.freeze({
     outerSize: undefined as Pick<Bounds, "width" | "height"> | undefined,
     innerSize: undefined as Bounds | undefined,
     offset: Object.freeze({ x: 0, y: 0 }),
+    scale: 1
 });
 
 function reducer(prevState: State, { outerSize, innerSize }: Action): State {
+    const scale = (!outerSize || !innerSize)
+        ? 1
+        : round(Math.min(outerSize.width / (innerSize.width / prevState.scale + 1), outerSize.height / (innerSize.height / prevState.scale + 1)), 2);
+    const newScale = scale / prevState.scale;
+
     const offset = (!outerSize || !innerSize)
         ? { x: 0, y: 0 }
         : {
-            x: (outerSize.width - innerSize.width) / 2 - innerSize.left + prevState.offset.x,
-            y: (outerSize.height - innerSize.height) / 2 - innerSize.top + prevState.offset.y
+            x: round((outerSize.width - innerSize.width * newScale) / 2 - innerSize.left * newScale + prevState.offset.x, 2),
+            y: round((outerSize.height - innerSize.height * newScale) / 2 - innerSize.top * newScale + prevState.offset.y, 2)
         };
 
-    return { outerSize: outerSize, innerSize: innerSize, offset };
+    if (offset.x === prevState.offset.x && offset.y === prevState.offset.y && prevState.scale === scale)
+        return prevState;
+
+    return { outerSize: outerSize, innerSize: innerSize, offset, scale };
 }
 
 export interface CenteredElementProps {
@@ -38,14 +48,13 @@ export const CenteredElement = singleElementDecorator((Element, { children, styl
         const result = setInterval(() => {
             if (!el.current || !el.current.parentElement) return;
             const outerSize = scaledBounds(el.current, el.current.parentElement);
-            clearInterval(result);
             dispatch({ innerSize: boundsWithin(el.current, el.current.parentElement), outerSize });
         }, 100);
         return () => clearInterval(result);
     }, [dispatch]);
 
     return (
-        <Element ref={el} style={{ ...style, transform: `translate(${x}px, ${y}px)` }} {...props}>
+        <Element ref={el} style={{ ...style, transform: `translate(${x}px, ${y}px) scale(${state.scale})` }} {...props}>
             {children}
         </Element>
     )
