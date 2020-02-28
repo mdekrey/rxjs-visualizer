@@ -1,8 +1,8 @@
 import React, { useMemo, ReactChild, ElementType } from 'react';
 import { Observable } from 'rxjs';
-import { recordAsync, LifecycleEntry, isLifecycleDatumEntry, isLifecycleCompleteEntry, LifecycleDatumEntry } from 'rxjs-visualizer';
-import { usePromise } from './usePromise';
+import { LifecycleEntry, isLifecycleDatumEntry, isLifecycleCompleteEntry, LifecycleDatumEntry, accumulate } from 'rxjs-visualizer';
 import './DrawObservable.css';
+import { useRx } from './useRx';
 
 interface Position { x: number | string; y: number | string }
 
@@ -42,8 +42,8 @@ export function DrawObservable<T extends LifecycleEntry<any>>({
     completeTerminator: CompleteElem = CompleteTerminator,
     errorTerminator: ErrorElem = ErrorTerminator
 }: DrawObservableProps<T>) {
-    const historyPromise = useMemo(() => recordAsync(target), [target]);
-    const history = usePromise(historyPromise, []);
+    const accumulated = useMemo(() => target.pipe(accumulate()), [target]);
+    const history = useRx(accumulated, []);
     const terminator = history.filter(e => !isLifecycleDatumEntry(e)) as (T extends LifecycleDatumEntry<infer _U> ? never : T)[];
     const data = history.filter(isLifecycleDatumEntry) as (T extends LifecycleDatumEntry<infer _U> ? T : never)[];
 
