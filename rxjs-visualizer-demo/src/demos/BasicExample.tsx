@@ -11,7 +11,7 @@ function Node(d: number) {
     return (
         <>
             <circle className="DrawObservable" />
-            <text className="DrawObservable" textAnchor="middle" y="0.8rem">{d}</text>
+            <text className="DrawObservable" textAnchor="middle" y="0.32rem">{d}</text>
         </>
     );
 }
@@ -31,7 +31,7 @@ export function BasicExample() {
             <CenteredG>
                 <DrawObservable
                     target={targetObservable}
-                    x={(d, idx) => `${(d && d.time * 2) || 0}rem`}
+                    x={(d, idx) => `${(d && d.time * 0.8) || 0}rem`}
                     element={Node}
                 />
             </CenteredG>

@@ -20,7 +20,7 @@ export interface DrawObservableProps<T extends LifecycleEntry<any>> {
 function zero() { return 0; }
 function index(_: unknown, idx: number) { return idx }
 
-const markerSize = '3.2rem';
+const markerSize = '1.28rem';
 function CompleteTerminator() {
     return <line x1={0} x2={0} y1={`-${markerSize}`} y2={markerSize} className="DrawObservable" />;
 }
