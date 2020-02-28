@@ -1,4 +1,4 @@
-import { Observable, isObservable, OperatorFunction, of, UnaryFunction } from "rxjs";
+import { Observable, isObservable, OperatorFunction, of } from "rxjs";
 import { mergeAll, map, startWith } from "rxjs/operators";
 import { LifecycleEntry, recordLifecycle, isLifecycleDatumEntry } from "./recordLifecycle";
 
