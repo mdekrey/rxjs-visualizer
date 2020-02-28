@@ -27,15 +27,19 @@ describe("traceHierarchy", () => {
     }
 
     expect(history).toEqual([
+      { observable: 0, type: observableDatumType, datum: { start: true } },
       { observable: 0, type: observableReferenceType, child: 1 },
+      { observable: 1, type: observableDatumType, datum: { start: true } },
       { observable: 1, type: observableDatumType, datum: { datum: { idx: 0, idx2: 0 } } },
       { observable: 1, type: observableDatumType, datum: { datum: { idx: 0, idx2: 1 } } },
       { observable: 1, type: observableDatumType, datum: { complete: true } },
       { observable: 0, type: observableReferenceType, child: 2 },
+      { observable: 2, type: observableDatumType, datum: { start: true } },
       { observable: 2, type: observableDatumType, datum: { datum: { idx: 1, idx2: 0 } } },
       { observable: 2, type: observableDatumType, datum: { datum: { idx: 1, idx2: 1 } } },
       { observable: 2, type: observableDatumType, datum: { complete: true } },
       { observable: 0, type: observableReferenceType, child: 3 },
+      { observable: 3, type: observableDatumType, datum: { start: true } },
       { observable: 3, type: observableDatumType, datum: { datum: { idx: 2, idx2: 0 } } },
       { observable: 3, type: observableDatumType, datum: { datum: { idx: 2, idx2: 1 } } },
       { observable: 3, type: observableDatumType, datum: { complete: true } },
@@ -60,18 +64,22 @@ describe("traceHierarchy", () => {
     }
 
     expect(history).toEqual([
+      { observable: 0, type: observableDatumType, datum: { start: true } },
       { observable: 0, type: observableDatumType, datum: { datum: 0 } },
       { observable: 0, type: observableReferenceType, child: 1 },
+      { observable: 1, type: observableDatumType, datum: { start: true } },
       { observable: 1, type: observableDatumType, datum: { datum: { idx: 0, idx2: 0 } } },
       { observable: 1, type: observableDatumType, datum: { datum: { idx: 0, idx2: 1 } } },
       { observable: 1, type: observableDatumType, datum: { complete: true } },
       { observable: 0, type: observableDatumType, datum: { datum: 1 } },
       { observable: 0, type: observableReferenceType, child: 2 },
+      { observable: 2, type: observableDatumType, datum: { start: true } },
       { observable: 2, type: observableDatumType, datum: { datum: { idx: 1, idx2: 0 } } },
       { observable: 2, type: observableDatumType, datum: { datum: { idx: 1, idx2: 1 } } },
       { observable: 2, type: observableDatumType, datum: { complete: true } },
       { observable: 0, type: observableDatumType, datum: { datum: 2 } },
       { observable: 0, type: observableReferenceType, child: 3 },
+      { observable: 3, type: observableDatumType, datum: { start: true } },
       { observable: 3, type: observableDatumType, datum: { datum: { idx: 2, idx2: 0 } } },
       { observable: 3, type: observableDatumType, datum: { datum: { idx: 2, idx2: 1 } } },
       { observable: 3, type: observableDatumType, datum: { complete: true } },
@@ -102,13 +110,17 @@ describe("traceHierarchy", () => {
     }
 
     expect(history).toEqual([
+      { observable: 0, type: observableDatumType, datum: { start: true } },
       { observable: 0, type: observableReferenceType, child: 1 },
+      { observable: 1, type: observableDatumType, datum: { start: true } },
       { observable: 1, type: observableDatumType, datum: { datum: { idx: 0, idx2: 0 } } },
       { observable: 0, type: observableReferenceType, child: 2 },
+      { observable: 2, type: observableDatumType, datum: { start: true } },
       { observable: 1, type: observableDatumType, datum: { datum: { idx: 0, idx2: 1 } } },
       { observable: 1, type: observableDatumType, datum: { complete: true } },
       { observable: 2, type: observableDatumType, datum: { datum: { idx: 1, idx2: 0 } } },
       { observable: 0, type: observableReferenceType, child: 3 },
+      { observable: 3, type: observableDatumType, datum: { start: true } },
       { observable: 0, type: observableDatumType, datum: { complete: true } },
       { observable: 2, type: observableDatumType, datum: { datum: { idx: 1, idx2: 1 } } },
       { observable: 2, type: observableDatumType, datum: { complete: true } },
@@ -137,13 +149,17 @@ describe("traceHierarchy", () => {
     );
 
     expect(history).toEqual([
+      { type: observableDatumType, observable: 0, datum: { start: true }, time: 0 },
       { type: observableReferenceType, observable: 0, child: 1, time: 5 },
+      { type: observableDatumType, observable: 1, datum: { start: true }, time: 5 },
       { type: observableDatumType, observable: 1, datum: { datum: { idx: 0, idx2: 0 } }, time: 9 },
       { type: observableReferenceType, observable: 0, child: 2, time: 10 },
+      { type: observableDatumType, observable: 2, datum: { start: true }, time: 10 },
       { type: observableDatumType, observable: 1, datum: { datum: { idx: 0, idx2: 1 } }, time: 13 },
       { type: observableDatumType, observable: 1, datum: { complete: true }, time: 13 },
       { type: observableDatumType, observable: 2, datum: { datum: { idx: 1, idx2: 0 } }, time: 14 },
       { type: observableReferenceType, observable: 0, child: 3, time: 15 },
+      { type: observableDatumType, observable: 3, datum: { start: true }, time: 15 },
       { type: observableDatumType, observable: 0, datum: { complete: true }, time: 15 },
       { type: observableDatumType, observable: 2, datum: { datum: { idx: 1, idx2: 1 } }, time: 18 },
       { type: observableDatumType, observable: 2, datum: { complete: true }, time: 18 },

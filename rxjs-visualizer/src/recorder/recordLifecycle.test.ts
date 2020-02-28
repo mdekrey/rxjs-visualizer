@@ -9,6 +9,7 @@ describe("recordLifecycle", () => {
       .subscribe(value => history.push(value));
 
     expect(history).toEqual([
+      { start: true },
       { datum: 0 },
       { datum: 1 },
       { datum: 2 },
@@ -26,6 +27,7 @@ describe("recordLifecycle", () => {
       .subscribe(value => history.push(value));
 
     expect(history).toEqual([
+      { start: true },
       { datum: 0 },
       { datum: 1 },
       { datum: 2 },
@@ -42,6 +44,7 @@ describe("recordLifecycle", () => {
       .subscribe(value => history.push(value));
 
     expect(history).toEqual([
+      { start: true },
       { datum: 0 },
       { datum: 1 },
       { datum: 2 },
