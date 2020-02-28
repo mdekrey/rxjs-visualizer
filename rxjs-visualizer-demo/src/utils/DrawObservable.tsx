@@ -4,12 +4,12 @@ import { recordAsync, LifecycleEntry, isLifecycleDatumEntry, isLifecycleComplete
 import { usePromise } from './usePromise';
 import './DrawObservable.css';
 
-interface Position { x: number; y: number }
+interface Position { x: number | string; y: number | string }
 
 export interface DrawObservableProps<T extends LifecycleEntry<any>> {
     target: Observable<T>;
-    y?: (datum: T, index: number) => number;
-    x: (datum: T, index: number) => number;
+    y?: (datum: T, index: number) => number | string;
+    x: (datum: T, index: number) => number | string;
     keyGenerator?: (datum: T extends LifecycleDatumEntry<infer U> ? U : never, index: number) => string | number;
     element: (datum: T extends LifecycleDatumEntry<infer U> ? U : never, index: number) => ReactChild;
     children?: never;
@@ -20,15 +20,15 @@ export interface DrawObservableProps<T extends LifecycleEntry<any>> {
 function zero() { return 0; }
 function index(_: unknown, idx: number) { return idx }
 
-const markerSize = 6.4;
+const markerSize = '3.2rem';
 function CompleteTerminator() {
-    return <line x1={0} x2={0} y1={-markerSize / 2} y2={markerSize / 2} className="DrawObservable" />;
+    return <line x1={0} x2={0} y1={`-${markerSize}`} y2={markerSize} className="DrawObservable" />;
 }
 function ErrorTerminator() {
     return (
         <>
-            <line x1={-markerSize / 2} x2={markerSize / 2} y1={-markerSize / 2} y2={markerSize / 2} className="error" />
-            <line x1={markerSize / 2} x2={-markerSize / 2} y1={-markerSize / 2} y2={markerSize / 2} className="error" />
+            <line x1={`-${markerSize}`} x2={markerSize} y1={`-${markerSize}`} y2={markerSize} className="error" />
+            <line x1={markerSize} x2={`-${markerSize}`} y1={`-${markerSize}`} y2={markerSize} className="error" />
         </>
     );
 }
@@ -58,13 +58,13 @@ export function DrawObservable<T extends LifecycleEntry<any>>({
                     <line x1={start.x} x2={end.x} y1={start.y} y2={end.y} key={`line-${index}`} className="DrawObservable" />)}
             {terminator.map(
                 (e, index) =>
-                    <g key={"terminator"} style={{ transform: `translate(${x(e, index)}px, ${y(e, index)}px)` }}>
+                    <g key={"terminator"} style={{ transform: `translate(${x(e, index)}, ${y(e, index)})` }}>
                         {isLifecycleCompleteEntry(e) ? <CompleteElem /> : <ErrorElem />}
                     </g>
             )}
             {data.map(
                 (e, index) =>
-                    <g key={keyGenerator(e.datum, index)} style={{ transform: `translate(${x(e, index)}px, ${y(e, index)}px)` }}>
+                    <g key={keyGenerator(e.datum, index)} style={{ transform: `translate(${x(e, index)}, ${y(e, index)})` }}>
                         {element(e.datum, index)}
                     </g>
             )}

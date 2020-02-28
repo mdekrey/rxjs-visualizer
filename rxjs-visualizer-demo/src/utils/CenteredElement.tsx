@@ -14,17 +14,23 @@ const initialState = Object.freeze({
     scale: 1
 });
 
+const buffer = 5;
+const precision = 4;
+
 function reducer(prevState: State, { outerSize, innerSize }: Action): State {
     const scale = (!outerSize || !innerSize)
         ? 1
-        : round(Math.min(outerSize.width / (innerSize.width / prevState.scale + 1), outerSize.height / (innerSize.height / prevState.scale + 1)), 2);
+        : round(Math.min(
+            (outerSize.width - buffer) / (innerSize.width / prevState.scale),
+            (outerSize.height - buffer) / (innerSize.height / prevState.scale)
+        ), precision);
     const newScale = scale / prevState.scale;
 
     const offset = (!outerSize || !innerSize)
         ? { x: 0, y: 0 }
         : {
-            x: round((outerSize.width - innerSize.width * newScale) / 2 - innerSize.left * newScale + prevState.offset.x, 2),
-            y: round((outerSize.height - innerSize.height * newScale) / 2 - innerSize.top * newScale + prevState.offset.y, 2)
+            x: round((outerSize.width - innerSize.width * newScale) / 2 - innerSize.left * newScale + prevState.offset.x, precision),
+            y: round((outerSize.height - innerSize.height * newScale) / 2 - innerSize.top * newScale + prevState.offset.y, precision)
         };
 
     if (offset.x === prevState.offset.x && offset.y === prevState.offset.y && prevState.scale === scale)
