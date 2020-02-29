@@ -20,7 +20,7 @@ const targetObservable: Observable<LifecycleEntry<number> & HasTime> =
     new Observable<LifecycleEntry<number> & HasTime>((observer) => {
         const scheduler = asyncScheduler; // can swap out FakeScheduler for immediate rendering
         const result = concat(interval(500, scheduler).pipe(take(10)), timer(500).pipe(filter(() => false)))
-            .pipe(recordLifecycle(), addTime(scheduler), map(collapseTime))
+            .pipe(recordLifecycle(2000, scheduler), addTime(scheduler), map(collapseTime))
             .subscribe(observer);
         // scheduler.execute();
         return result;

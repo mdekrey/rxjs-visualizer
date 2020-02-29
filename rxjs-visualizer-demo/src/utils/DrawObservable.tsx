@@ -1,6 +1,6 @@
 import React, { useMemo, ReactChild, ElementType } from 'react';
 import { Observable } from 'rxjs';
-import { LifecycleEntry, isLifecycleDatumEntry, isLifecycleCompleteEntry, LifecycleDatumEntry, accumulate, isLifecycleTerminatorEntry } from 'rxjs-visualizer';
+import { LifecycleEntry, isLifecycleDatumEntry, isLifecycleCompleteEntry, isLifecycleContinuesEntry, LifecycleDatumEntry, accumulate, isLifecycleTerminatorEntry, isLifecycleErrorEntry } from 'rxjs-visualizer';
 import './DrawObservable.css';
 import { useRx } from './useRx';
 
@@ -12,21 +12,31 @@ export interface DrawObservableProps<T extends LifecycleEntry<any>> {
     children?: never;
     completeTerminator?: ElementType<{}>;
     errorTerminator?: ElementType<{}>;
+    continuationTerminator?: ElementType<{}>;
 }
 
 function index(_: unknown, idx: number) { return idx }
 
-const markerSize = '1.28rem';
+const markerSize = 1.28;
 function CompleteTerminator() {
-    return <line x1={0} x2={0} y1={`-${markerSize}`} y2={markerSize} className="DrawObservable" />;
+    return <line x1={0} x2={0} y1={`-${markerSize}rem`} y2={`${markerSize}rem`} className="DrawObservable" />;
 }
 function ErrorTerminator() {
     return (
         <>
-            <line x1={`-${markerSize}`} x2={markerSize} y1={`-${markerSize}`} y2={markerSize} className="DrawObservable error" />
-            <line x1={markerSize} x2={`-${markerSize}`} y1={`-${markerSize}`} y2={markerSize} className="DrawObservable error" />
+            <line x1={`-${markerSize}rem`} x2={`${markerSize}rem`} y1={`-${markerSize}rem`} y2={`${markerSize}rem`} className="DrawObservable error" />
+            <line x1={`${markerSize}rem`} x2={`-${markerSize}rem`} y1={`-${markerSize}rem`} y2={`${markerSize}rem`} className="DrawObservable error" />
         </>
     );
+}
+function ContinuationTerminator() {
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    return (
+        <>
+            <line x1={0} x2={markerSize} y1={0} y2={0} className="DrawObservable" />
+            <path style={{transform:`scale(${rem})`}} d={`M0 -${markerSize * 1} L${markerSize * 1.5} 0 L0 ${markerSize * 1}`} className="DrawObservable" />
+        </>
+    )
 }
 
 export function DrawObservable<T extends LifecycleEntry<any>>({
@@ -35,7 +45,8 @@ export function DrawObservable<T extends LifecycleEntry<any>>({
     keyGenerator = index,
     element,
     completeTerminator: CompleteElem = CompleteTerminator,
-    errorTerminator: ErrorElem = ErrorTerminator
+    errorTerminator: ErrorElem = ErrorTerminator,
+    continuationTerminator: ContinuationElem = ContinuationTerminator,
 }: DrawObservableProps<T>) {
     const accumulated = useMemo(() => target.pipe(accumulate()), [target]);
     const history = useRx(accumulated, []);
@@ -50,7 +61,10 @@ export function DrawObservable<T extends LifecycleEntry<any>>({
             {terminator.map(
                 (e, index) =>
                     <g key={"terminator"} style={{ transform: `translate(${x(e, index)}px, 0px)` }}>
-                        {isLifecycleCompleteEntry(e) ? <CompleteElem /> : <ErrorElem />}
+                        {isLifecycleCompleteEntry(e) ? <CompleteElem />
+                            : isLifecycleErrorEntry(e) ? <ErrorElem />
+                        : isLifecycleContinuesEntry(e) ? <ContinuationElem />
+                    : null}
                     </g>
             )}
             {data.map(
