@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { Observable, interval, Observer, asyncScheduler, concat, throwError } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { Observable, interval, Observer, asyncScheduler, concat, throwError, timer } from 'rxjs';
+import { map, take, filter } from 'rxjs/operators';
 import { DrawObservable } from '../utils/DrawObservable';
 import { CenteredElement } from '../utils/CenteredElement';
 import { recordLifecycle, addTime, LifecycleEntry, collapseTime, HasTime } from 'rxjs-visualizer';
@@ -19,7 +19,7 @@ function Node(d: number) {
 const targetObservable: Observable<LifecycleEntry<number> & HasTime> =
     Observable.create((observer: Observer<LifecycleEntry<number> & HasTime>) => {
         const scheduler = asyncScheduler; // can swap out FakeScheduler for immediate rendering
-        const result = concat(interval(500, scheduler).pipe(take(10)), throwError("boom"))
+        const result = concat(interval(500, scheduler).pipe(take(10)), timer(500).pipe(filter(() => false)))
             .pipe(recordLifecycle(), addTime(scheduler), map(collapseTime))
             .subscribe(observer);
         // scheduler.execute();
