@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Observable, interval, Observer, asyncScheduler, concat, throwError, timer } from 'rxjs';
+import { Observable, interval, asyncScheduler, concat, timer } from 'rxjs';
 import { map, take, filter } from 'rxjs/operators';
 import { DrawObservable } from '../utils/DrawObservable';
 import { CenteredElement } from '../utils/CenteredElement';
@@ -17,7 +17,7 @@ function Node(d: number) {
 }
 
 const targetObservable: Observable<LifecycleEntry<number> & HasTime> =
-    Observable.create((observer: Observer<LifecycleEntry<number> & HasTime>) => {
+    new Observable<LifecycleEntry<number> & HasTime>((observer) => {
         const scheduler = asyncScheduler; // can swap out FakeScheduler for immediate rendering
         const result = concat(interval(500, scheduler).pipe(take(10)), timer(500).pipe(filter(() => false)))
             .pipe(recordLifecycle(), addTime(scheduler), map(collapseTime))
