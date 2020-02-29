@@ -1,5 +1,6 @@
-import { range, throwError, concat, never } from "rxjs";
+import { range, throwError, concat, never, interval } from "rxjs";
 import { recordLifecycle, LifecycleEntry } from "./recordLifecycle";
+import { FakeScheduler } from "../scheduler";
 
 describe("recordLifecycle", () => {
   it("gets lifecycle events", () => {
@@ -50,6 +51,23 @@ describe("recordLifecycle", () => {
       { datum: 2 },
       { datum: 3 },
       { datum: 4 }
+    ]);
+  });
+
+  it("can timeout", () => {
+    const scheduler = new FakeScheduler();
+    const history: LifecycleEntry<number>[] = [];
+    interval(500, scheduler)
+      .pipe(recordLifecycle(2000, scheduler))
+      .subscribe(value => history.push(value));
+    scheduler.execute();
+
+    expect(history).toEqual([
+      { start: true },
+      { datum: 0 },
+      { datum: 1 },
+      { datum: 2 },
+      { continues: true }
     ]);
   });
 });
