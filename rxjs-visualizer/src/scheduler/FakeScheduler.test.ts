@@ -5,12 +5,12 @@ import { FakeScheduler } from "./FakeScheduler";
 describe("FakeScheduler", () => {
   it("runs instantly", () => {
     const history: { time: number; value: number }[] = [];
-    const targetScheduler = new FakeScheduler(500);
+    const targetScheduler = new FakeScheduler();
     interval(1000, targetScheduler)
       .pipe(take(5))
       .subscribe(value => history.push({ time: targetScheduler.now(), value }));
 
-    targetScheduler.execute();
+    targetScheduler.execute(500);
 
     expect(history).toEqual([
       { time: 1000, value: 0 },
@@ -23,30 +23,30 @@ describe("FakeScheduler", () => {
 
   it("tracks the last execution time", () => {
     const history: { time: number; value: number }[] = [];
-    const targetScheduler = new FakeScheduler(10);
+    const targetScheduler = new FakeScheduler();
     interval(1000, targetScheduler)
       .pipe(take(5))
       .subscribe(value => history.push({ time: targetScheduler.now(), value }));
 
-    targetScheduler.execute();
+    targetScheduler.execute(10);
 
     expect(targetScheduler.now()).toEqual(5 * 1000);
   });
 
   it("resumes at the same time", () => {
     const history: { time: number; value: number }[] = [];
-    const targetScheduler = new FakeScheduler(10);
+    const targetScheduler = new FakeScheduler();
     interval(1000, targetScheduler)
       .pipe(take(5))
       .subscribe(value => history.push({ time: targetScheduler.now(), value }));
 
-    targetScheduler.execute();
+    targetScheduler.execute(10);
 
     interval(1000, targetScheduler)
       .pipe(take(5))
       .subscribe(value => history.push({ time: targetScheduler.now(), value }));
 
-    targetScheduler.execute();
+    targetScheduler.execute(10);
 
     expect(targetScheduler.now()).toEqual(10 * 1000);
   });
@@ -69,12 +69,12 @@ describe("FakeScheduler", () => {
   it("limits the total number of enqueues per execution", () => {
     const count = 10;
     const history: { time: number; value: number }[] = [];
-    const targetScheduler = new FakeScheduler(count);
+    const targetScheduler = new FakeScheduler();
     interval(1000, targetScheduler).subscribe(value =>
       history.push({ time: targetScheduler.now(), value })
     );
 
-    targetScheduler.execute();
+    targetScheduler.execute(count);
 
     expect(history).toEqual(
       new Array(count)
@@ -86,13 +86,13 @@ describe("FakeScheduler", () => {
   it("can execute multiple times", () => {
     const count = 10;
     const history: { time: number; value: number }[] = [];
-    const targetScheduler = new FakeScheduler(count);
+    const targetScheduler = new FakeScheduler();
     interval(1000, targetScheduler).subscribe(value =>
       history.push({ time: targetScheduler.now(), value })
     );
 
-    targetScheduler.execute();
-    targetScheduler.execute();
+    targetScheduler.execute(count);
+    targetScheduler.execute(count);
 
     expect(history).toEqual(
       new Array(count * 2)

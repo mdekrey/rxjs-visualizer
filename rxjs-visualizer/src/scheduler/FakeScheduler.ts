@@ -3,7 +3,7 @@ import { QueueAction } from "./QueueAction";
 export class FakeScheduler implements SchedulerLike {
     private currentTime = 0;
     private readonly queued: QueueAction<any>[] = [];
-    constructor(private maxEnqueued = 500) {
+    constructor() {
     }
     readonly now = () => this.currentTime;
     schedule<T>(work: (this: SchedulerAction<T>, state?: T) => void, delay: number = 0, state?: T) {
@@ -38,9 +38,9 @@ export class FakeScheduler implements SchedulerLike {
         return context;
     }
 
-    execute() {
+    execute(maxEnqueued = 500) {
         let executionCount = 0;
-        while (executionCount < this.maxEnqueued && this.queued.length) {
+        while (executionCount < maxEnqueued && this.queued.length) {
             this.queued.sort((a, b) => a.time - b.time);
             const next = this.queued.shift()!;
             this.currentTime = next.time;
