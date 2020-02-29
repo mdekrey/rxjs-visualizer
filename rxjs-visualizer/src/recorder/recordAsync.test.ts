@@ -12,9 +12,9 @@ describe("recordAsync", () => {
 
   it("respects the timeout", async () => {
     // using the FakeScheduler is more deterministic as it doesn't rely on milliseconds of time
-    const scheduler = new FakeScheduler(500);
+    const scheduler = new FakeScheduler();
     const historyPromise = recordAsync(interval(10, scheduler), 500, scheduler);
-    scheduler.execute();
+    scheduler.execute(500);
     const history = await historyPromise;
 
     expect(history.length).toBe(49);

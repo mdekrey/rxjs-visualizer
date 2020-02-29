@@ -50,6 +50,27 @@ export class FakeScheduler implements SchedulerLike {
         return executionCount;
     }
 
+    advanceTime(maxAmountOfTime: number, maxEnqueued?: number) {
+        const finalTime = maxAmountOfTime + this.currentTime;
+        let executionCount = 0;
+        while (this.currentTime <= finalTime && this.queued.length) {
+            this.queued.sort((a, b) => a.time - b.time);
+            const next = this.queued.shift()!;
+            if (next.time > finalTime) {
+                this.queued.unshift(next);
+                break;
+            }
+            this.currentTime = next.time;
+            next.context.work(next.state);
+            executionCount++;
+            if (maxEnqueued !== undefined && executionCount >= maxEnqueued) {
+                return executionCount;
+            }
+        }
+        this.currentTime = finalTime;
+        return executionCount;
+    }
+
     scheduledCount() {
         return this.queued.length;
     }

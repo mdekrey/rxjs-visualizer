@@ -6,12 +6,12 @@ import { addTime } from "./addTime";
 describe("addTime", () => {
   it("adds time from the scheduler", () => {
     const history: { time: number; original: number }[] = [];
-    const targetScheduler = new FakeScheduler(500);
+    const targetScheduler = new FakeScheduler();
     interval(1000, targetScheduler)
       .pipe(take(5), addTime(targetScheduler))
       .subscribe(value => history.push(value));
 
-    targetScheduler.execute();
+    targetScheduler.execute(500);
 
     expect(history).toEqual([
       { time: 1000, original: 0 },

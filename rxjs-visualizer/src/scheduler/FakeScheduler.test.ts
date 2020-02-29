@@ -33,6 +33,32 @@ describe("FakeScheduler", () => {
     expect(targetScheduler.now()).toEqual(5 * 1000);
   });
 
+  it("performs controlled advancements of time", () => {
+    const history: { time: number; value: number }[] = [];
+    const targetScheduler = new FakeScheduler();
+    interval(1000, targetScheduler)
+      .pipe(take(5))
+      .subscribe(value => history.push({ time: targetScheduler.now(), value }));
+
+    targetScheduler.advanceTime(2200);
+
+    expect(targetScheduler.now()).toEqual(2200);
+    expect(history.length).toEqual(2);
+  });
+
+  it("performs controlled advancements of time but with max executions", () => {
+    const history: { time: number; value: number }[] = [];
+    const targetScheduler = new FakeScheduler();
+    interval(1000, targetScheduler)
+      .pipe(take(5))
+      .subscribe(value => history.push({ time: targetScheduler.now(), value }));
+
+    targetScheduler.advanceTime(2200, 1);
+
+    expect(targetScheduler.now()).toEqual(1000);
+    expect(history.length).toEqual(1);
+  });
+
   it("resumes at the same time", () => {
     const history: { time: number; value: number }[] = [];
     const targetScheduler = new FakeScheduler();
