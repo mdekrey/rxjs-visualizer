@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { ReactText } from 'react';
 import { BasicThemeConfig } from './BasicThemeConfig';
 
 export function BasicNode({ datum, theme: { markerSize, nodeCircleRadius, nodeCircleStyle, nodeTextStyle } }: {
-    datum: number;
+    datum: ReactText;
     theme: BasicThemeConfig
 }) {
     return (<>

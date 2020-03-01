@@ -10,7 +10,7 @@ const markerSize = 1.28;
 
 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-export const BasicTheme: Pick<DrawObservableProps<any, BasicThemeConfig>, "theme" | "completeTerminator" | "errorTerminator" | "continuationTerminator" | "observableLine"> = {
+export const BasicTheme: Pick<DrawObservableProps<any, BasicThemeConfig, any>, "theme" | "observableLine"> = {
     theme: {
         markerSize,
         nodeTextStyle: {
@@ -34,9 +34,9 @@ export const BasicTheme: Pick<DrawObservableProps<any, BasicThemeConfig>, "theme
             strokeWidth: "0.12rem",
             stroke: "red",
         },
+        completeTerminator: BasicCompleteTerminator,
+        errorTerminator: BasicErrorTerminator,
+        continuationTerminator: BasicContinuationTerminator,
     },
-    completeTerminator: BasicCompleteTerminator,
-    errorTerminator: BasicErrorTerminator,
-    continuationTerminator: BasicContinuationTerminator,
     observableLine: BasicObservableLine,
 };

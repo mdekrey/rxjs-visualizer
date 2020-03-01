@@ -1,24 +1,49 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, ElementType } from "react";
 import { Observable, asyncScheduler, SchedulerLike } from "rxjs";
 import { map } from "rxjs/operators";
-import { LifecycleEntry, recordLifecycle, addTime, collapseTime, HasTime } from "rxjs-visualizer";
-import { DrawObservable, DrawObservableProps } from "./DrawObservable";
+import { LifecycleEntry, recordLifecycle, addTime, collapseTime, HasTime, isLifecycleDatumEntry } from "rxjs-visualizer";
+import { DrawObservable, DrawObservableProps, DrawObservableElementProps } from "./DrawObservable";
+import { NodeOrTerminator, LifetimeTheme } from "./NodeOrTerminator";
 
-export type TimeObservableProps<T, TTheme> =
-    Omit<DrawObservableProps<LifecycleEntry<T>, TTheme>, "x" | "target"> & {
+export type TimeObservableProps<T, TTheme extends LifetimeTheme<any>> =
+    Omit<DrawObservableProps<LifecycleEntry<T> & HasTime, TTheme, T>, "x" | "target" | "y" | "datumSelector" | "sortOrder" | "element"> & {
         target: Observable<T>
         timeLimit: number;
         timeSizeFactor: number;
         scheduler?: SchedulerLike;
+        observableRenderer?: ElementType<DrawObservableProps<LifecycleEntry<T> & HasTime, TTheme, T>>;
+        element: ElementType<DrawObservableElementProps<LifecycleEntry<T> & HasTime, TTheme, T>>;
     };
 
-export function TimeObservable<T, TTheme>({ target, timeLimit, timeSizeFactor, scheduler = asyncScheduler, ...props }: TimeObservableProps<T, TTheme>) {
+function sortOrder<T>(_1: any, _2: any, orig: LifecycleEntry<T> & HasTime) {
+    return isLifecycleDatumEntry(orig) ? 1 : 0;
+}
+function datumSelector<T>(orig: LifecycleEntry<T> & HasTime) {
+    return isLifecycleDatumEntry(orig) ? orig.datum : null!;
+}
+
+export function TimeObservable<T, TTheme extends LifetimeTheme<any>>({
+        target,
+        timeLimit,
+        timeSizeFactor,
+        scheduler = asyncScheduler,
+        observableRenderer: ObservableElem = DrawObservable,
+        element,
+        ...props
+    }: TimeObservableProps<T, TTheme>) {
     const {newTarget, timeOffset} = useMemo(() => ({
         newTarget: target.pipe(recordLifecycle(timeLimit), addTime(), map(collapseTime)),
         timeOffset: scheduler.now(),
     }), [target, timeLimit, scheduler]);
-    const x = useCallback((d: HasTime) => (d && (d.time - timeOffset) * timeSizeFactor) || 0, [timeSizeFactor, timeOffset]);
+    const x = useCallback((_1, _2, d: HasTime) => (d && (d.time - timeOffset) * timeSizeFactor) || 0, [timeSizeFactor, timeOffset]);
     return (
-        <DrawObservable {...props} target={newTarget} x={x} />
+        <ObservableElem
+            {...props}
+            target={newTarget}
+            x={x}
+            y={() => 0}
+            datumSelector={datumSelector}
+            sortOrder={sortOrder}
+            element={NodeOrTerminator(element)} />
     )
 }

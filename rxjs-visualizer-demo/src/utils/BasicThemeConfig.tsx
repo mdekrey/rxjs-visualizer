@@ -1,4 +1,6 @@
-export type BasicThemeConfig = {
+import { LifetimeTheme } from "./NodeOrTerminator";
+
+interface RootBasicThemeConfig {
     markerSize: number;
     nodeCircleRadius: string;
     nodeCircleStyle: React.CSSProperties;
@@ -6,4 +8,6 @@ export type BasicThemeConfig = {
     lineStyle: React.CSSProperties;
     pathStyle: React.CSSProperties;
     errorStyle: React.CSSProperties;
-};
+}
+
+export type BasicThemeConfig = LifetimeTheme<RootBasicThemeConfig>;
