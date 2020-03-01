@@ -1,17 +1,9 @@
 import React, { useMemo } from 'react';
 import { Observable, interval, asyncScheduler, concat, timer } from 'rxjs';
 import { map, take, filter } from 'rxjs/operators';
-import { DrawObservable } from '../utils/DrawObservable';
+import { BasicDrawObservable } from "../utils/BasicDrawObservable";
 import { recordLifecycle, addTime, LifecycleEntry, collapseTime, HasTime } from 'rxjs-visualizer';
-
-function Node({ datum: d }: { datum: number }) {
-    return (
-        <>
-            <circle className="DrawObservable" />
-            <text className="DrawObservable" textAnchor="middle" y="0.32rem">{d}</text>
-        </>
-    );
-}
+import { BasicNode } from '../utils/BasicNode';
 
 const targetObservable: Observable<LifecycleEntry<number> & HasTime> =
     new Observable<LifecycleEntry<number> & HasTime>((observer) => {
@@ -28,13 +20,11 @@ export function BasicExample() {
     const timeOffset = useMemo(() => asyncScheduler.now(), []);
     return (
         <svg style={{ width: "42.5rem", height: "2.625rem" }}>
-            <g style={{ transform: "translate(0px, 1.3125rem)" }}>
-                <DrawObservable
-                    target={targetObservable}
-                    x={(d, idx) => ((d && (d.time - timeOffset) * 0.008) || 0) * rem}
-                    element={Node}
-                />
-            </g>
+            <BasicDrawObservable
+                target={targetObservable}
+                x={(d, idx) => ((d && (d.time - timeOffset) * 0.008) || 0) * rem}
+                element={BasicNode}
+            />
         </svg>
     );
 }
