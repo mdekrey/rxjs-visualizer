@@ -8,7 +8,7 @@ export interface DrawObservableProps<T extends LifecycleEntry<any>> {
     target: Observable<T>;
     x: (datum: T, index: number) => number;
     keyGenerator?: (datum: T extends LifecycleDatumEntry<infer U> ? U : never, index: number) => string | number;
-    element: (datum: T extends LifecycleDatumEntry<infer U> ? U : never, index: number) => ReactChild;
+    element: ElementType<{ datum: T extends LifecycleDatumEntry<infer U> ? U : never, index: number }>;
     children?: never;
     completeTerminator?: ElementType<{}>;
     errorTerminator?: ElementType<{}>;
@@ -43,7 +43,7 @@ export function DrawObservable<T extends LifecycleEntry<any>>({
     target,
     x,
     keyGenerator = index,
-    element,
+    element: Element,
     completeTerminator: CompleteElem = CompleteTerminator,
     errorTerminator: ErrorElem = ErrorTerminator,
     continuationTerminator: ContinuationElem = ContinuationTerminator,
@@ -70,7 +70,7 @@ export function DrawObservable<T extends LifecycleEntry<any>>({
             {data.map(
                 (e, index) =>
                     <g key={keyGenerator(e.datum, index)} style={{ transform: `translate(${x(e, index)}px, 0px)` }}>
-                        {element(e.datum, index)}
+                        <Element datum={e.datum} index={index} />
                     </g>
             )}
         </g>

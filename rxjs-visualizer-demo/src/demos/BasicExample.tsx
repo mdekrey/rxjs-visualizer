@@ -2,12 +2,9 @@ import React, { useMemo } from 'react';
 import { Observable, interval, asyncScheduler, concat, timer } from 'rxjs';
 import { map, take, filter } from 'rxjs/operators';
 import { DrawObservable } from '../utils/DrawObservable';
-import { CenteredElement } from '../utils/CenteredElement';
 import { recordLifecycle, addTime, LifecycleEntry, collapseTime, HasTime } from 'rxjs-visualizer';
 
-const CenteredG = CenteredElement<React.SVGProps<SVGGElement>>("g");
-
-function Node(d: number) {
+function Node({ datum: d }: { datum: number }) {
     return (
         <>
             <circle className="DrawObservable" />
@@ -30,16 +27,14 @@ export function BasicExample() {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
     const timeOffset = useMemo(() => asyncScheduler.now(), []);
     return (
-        <svg style={{ width: "680px", height: "68px" }}>
-            <CenteredG>
-            <g style={{ transform: "translate(0px, 34px)" }}>
+        <svg style={{ width: "42.5rem", height: "2.625rem" }}>
+            <g style={{ transform: "translate(0px, 1.3125rem)" }}>
                 <DrawObservable
                     target={targetObservable}
                     x={(d, idx) => ((d && (d.time - timeOffset) * 0.008) || 0) * rem}
                     element={Node}
                 />
-                </g>
-            </CenteredG>
+            </g>
         </svg>
     );
 }
