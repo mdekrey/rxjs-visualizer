@@ -4,50 +4,50 @@ import { accumulate } from 'rxjs-visualizer';
 import { useRx } from './useRx';
 import { indexKeyGenerator } from './indexKeyGenerator';
 
-export type DrawObservableCallback<TEntry, TDatum, TReturns> =
-    (datum: TDatum, index: number, fullEntry: TEntry) => TReturns;
+export type DrawObservableCallback<TDatum, TReturns> =
+    (datum: TDatum, index: number) => TReturns;
 
-export type DrawObservableElementProps<TEntry, TTheme, TDatum> = { theme: TTheme, datum: TDatum, entry: TEntry, index: number };
+export type DrawObservableElementProps<TDatum, TTheme> = { theme: TTheme, datum: TDatum, index: number };
 
-export interface DrawObservableProps<TEntry, TTheme, TDatum> {
+export interface DrawObservableProps<TDatum, TTheme> {
     theme: TTheme;
-    target: Observable<TEntry>;
-    datumSelector: (entry: TEntry) => TDatum;
-    sortOrder: DrawObservableCallback<TEntry, TDatum, number>;
-    x: DrawObservableCallback<TEntry, TDatum, number>;
-    y: DrawObservableCallback<TEntry, TDatum, number>;
-    keyGenerator?: DrawObservableCallback<TEntry, TDatum, string | number>;
-    element: ElementType<DrawObservableElementProps<TEntry, TTheme, TDatum>>;
+    target: Observable<TDatum>;
+    sortOrder: DrawObservableCallback<TDatum, number>;
+    x: DrawObservableCallback<TDatum, number>;
+    y: DrawObservableCallback<TDatum, number>;
+    keyGenerator?: DrawObservableCallback<TDatum, string | number>;
+    element: ElementType<DrawObservableElementProps<TDatum, TTheme>>;
     children?: never;
     observableLine: ElementType<{ theme: TTheme, lineMinX: number, lineMaxX: number }>;
 }
 
-export function DrawObservable<TEntry, TTheme, TDatum>({
+export function DrawObservable<TDatum, TTheme>({
     theme,
     target,
     sortOrder,
-    datumSelector,
     x,
     y,
     keyGenerator = indexKeyGenerator,
     element: Element,
     observableLine: LineElem,
-}: DrawObservableProps<TEntry, TTheme, TDatum>) {
+}: DrawObservableProps<TDatum, TTheme>) {
     const accumulated = useMemo(() => target.pipe(accumulate()), [target]);
     const history = useRx(accumulated, []);
-    const sorted = useMemo(() => history.map((entry, index) => {
-        const datum = datumSelector(entry);
-        return { entry, datum, index, sort: sortOrder(datum, index, entry) };
-    }).sort((a, b) => a.sort - b.sort), [history, datumSelector, sortOrder]);
-    const lineMin = Math.min(Number.MAX_SAFE_INTEGER, ...sorted.map(({ datum, index, entry }) => x(datum, index, entry)));
-    const lineMax = Math.max(lineMin, ...sorted.map(({ datum, index, entry }) => x(datum, index, entry)));
+    const sorted = useMemo(
+        () =>
+            history.map((datum, index) => ({ datum, index, sort: sortOrder(datum, index) }))
+                .sort((a, b) => a.sort - b.sort),
+        [history, sortOrder]
+    );
+    const lineMin = Math.min(Number.MAX_SAFE_INTEGER, ...sorted.map(({ datum, index }) => x(datum, index)));
+    const lineMax = Math.max(lineMin, ...sorted.map(({ datum, index }) => x(datum, index)));
 
     return (
         <g>
             <LineElem theme={theme} lineMinX={lineMin} lineMaxX={lineMax} />
-            {sorted.map(({ datum, entry, index }) =>
-                <g key={keyGenerator(datum, index, entry)} style={{ transform: `translate(${x(datum, index, entry)}px, ${y(datum, index, entry)}px)` }}>
-                    <Element theme={theme} datum={datum} index={index} entry={entry} />
+            {sorted.map(({ datum, index }) =>
+                <g key={keyGenerator(datum, index)} style={{ transform: `translate(${x(datum, index)}px, ${y(datum, index)}px)` }}>
+                    <Element theme={theme} datum={datum} index={index} />
                 </g>
             )}
         </g>

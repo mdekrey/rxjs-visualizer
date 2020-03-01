@@ -10,7 +10,7 @@ const markerSize = 1.28;
 
 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-export const BasicTheme: Pick<DrawObservableProps<any, BasicThemeConfig, any>, "theme" | "observableLine"> = {
+export const BasicTheme: Pick<DrawObservableProps<any, BasicThemeConfig>, "theme" | "observableLine"> = {
     theme: {
         markerSize,
         nodeTextStyle: {
