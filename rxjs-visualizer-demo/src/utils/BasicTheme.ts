@@ -6,13 +6,11 @@ import { BasicObservableLine } from './BasicObservableLine';
 import { BasicThemeConfig } from './BasicThemeConfig';
 import { DrawObservableProps } from './DrawObservable';
 
-function index(_: unknown, idx: number) { return idx; }
-
 const markerSize = 1.28;
 
 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-export const BasicTheme: Pick<DrawObservableProps<any, BasicThemeConfig>, "theme" | "completeTerminator" | "errorTerminator" | "continuationTerminator" | "observableLine" | "keyGenerator"> = {
+export const BasicTheme: Pick<DrawObservableProps<any, BasicThemeConfig>, "theme" | "completeTerminator" | "errorTerminator" | "continuationTerminator" | "observableLine"> = {
     theme: {
         markerSize,
         nodeTextStyle: {
@@ -37,7 +35,6 @@ export const BasicTheme: Pick<DrawObservableProps<any, BasicThemeConfig>, "theme
             stroke: "red",
         },
     },
-    keyGenerator: index,
     completeTerminator: BasicCompleteTerminator,
     errorTerminator: BasicErrorTerminator,
     continuationTerminator: BasicContinuationTerminator,

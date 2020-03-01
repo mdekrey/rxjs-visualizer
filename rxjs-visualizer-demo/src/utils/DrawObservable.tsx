@@ -7,7 +7,7 @@ export interface DrawObservableProps<T extends LifecycleEntry<any>, TTheme> {
     theme: TTheme;
     target: Observable<T>;
     x: (datum: T, index: number) => number;
-    keyGenerator: (datum: T extends LifecycleDatumEntry<infer U> ? U : never, index: number) => string | number;
+    keyGenerator?: (datum: T extends LifecycleDatumEntry<infer U> ? U : never, index: number) => string | number;
     element: ElementType<{ theme: TTheme, datum: T extends LifecycleDatumEntry<infer U> ? U : never, index: number }>;
     children?: never;
     completeTerminator: ElementType<{ theme: TTheme }>;
@@ -16,11 +16,13 @@ export interface DrawObservableProps<T extends LifecycleEntry<any>, TTheme> {
     observableLine: ElementType<{ theme: TTheme, lineMinX: number, lineMaxX: number }>;
 }
 
+function index(_: unknown, idx: number) { return idx; }
+
 export function DrawObservable<T extends LifecycleEntry<any>, TTheme>({
     theme,
     target,
     x,
-    keyGenerator,
+    keyGenerator = index,
     element: Element,
     completeTerminator: CompleteElem,
     errorTerminator: ErrorElem,

@@ -1,34 +1,23 @@
-import React, { useMemo } from 'react';
-import { Observable, interval, asyncScheduler, concat, timer } from 'rxjs';
-import { map, take, filter } from 'rxjs/operators';
-import { recordLifecycle, addTime, LifecycleEntry, collapseTime, HasTime } from 'rxjs-visualizer';
+import React from 'react';
+import { interval, concat, timer } from 'rxjs';
+import { take, filter } from 'rxjs/operators';
 import { BasicNode } from '../utils/BasicNode';
-import { DrawObservable } from '../utils/DrawObservable';
 import { BasicTheme } from '../utils/BasicTheme';
+import { TimeObservable } from '../utils/TimeObservable';
 
-const targetObservable: Observable<LifecycleEntry<number> & HasTime> =
-    new Observable<LifecycleEntry<number> & HasTime>((observer) => {
-        const scheduler = asyncScheduler; // can swap out FakeScheduler for immediate rendering
-        const result = concat(interval(500, scheduler).pipe(take(10)), timer(500).pipe(filter(() => false)))
-            .pipe(recordLifecycle(2000, scheduler), addTime(scheduler), map(collapseTime))
-            .subscribe(observer);
-        // scheduler.execute();
-        return result;
-    });
+const simpleObservable = concat(interval(500).pipe(take(10)), timer(500).pipe(filter(() => false)));
 
 export function BasicExample() {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    const timeOffset = useMemo(() => asyncScheduler.now(), []);
     const height = 2.625;
     return (
         <svg style={{ width: "42.5rem", height: `${height}rem` }}>
             <g style={{ transform: `translate(0px, ${height / 2}rem)` }}>
-                <DrawObservable
+                <TimeObservable target={simpleObservable}
                     {...BasicTheme}
-                    target={targetObservable}
-                    x={(d, idx) => ((d && (d.time - timeOffset) * 0.008) || 0) * rem}
                     element={BasicNode}
-                />
+                    timeLimit={5000}
+                    timeSizeFactor={0.008 * rem} />
             </g>
         </svg>
     );
