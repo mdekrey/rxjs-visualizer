@@ -16,7 +16,6 @@ export interface DrawObservableProps<T extends LifecycleEntry<any>, TTheme> {
     observableLine: ElementType<{ theme: TTheme, lineMinX: number, lineMaxX: number }>;
 }
 
-export const markerSize = 1.28;
 export function DrawObservable<T extends LifecycleEntry<any>, TTheme>({
     theme,
     target,
