@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { Observable, interval, asyncScheduler, concat, timer } from 'rxjs';
 import { map, take, filter } from 'rxjs/operators';
-import { BasicDrawObservable } from "../utils/BasicDrawObservable";
 import { recordLifecycle, addTime, LifecycleEntry, collapseTime, HasTime } from 'rxjs-visualizer';
 import { BasicNode } from '../utils/BasicNode';
+import { DrawObservable } from '../utils/DrawObservable';
+import { BasicTheme } from '../utils/BasicTheme';
 
 const targetObservable: Observable<LifecycleEntry<number> & HasTime> =
     new Observable<LifecycleEntry<number> & HasTime>((observer) => {
@@ -18,13 +19,17 @@ const targetObservable: Observable<LifecycleEntry<number> & HasTime> =
 export function BasicExample() {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
     const timeOffset = useMemo(() => asyncScheduler.now(), []);
+    const height = 2.625;
     return (
-        <svg style={{ width: "42.5rem", height: "2.625rem" }}>
-            <BasicDrawObservable
-                target={targetObservable}
-                x={(d, idx) => ((d && (d.time - timeOffset) * 0.008) || 0) * rem}
-                element={BasicNode}
-            />
+        <svg style={{ width: "42.5rem", height: `${height}rem` }}>
+            <g style={{ transform: `translate(0px, ${height / 2}rem)` }}>
+                <DrawObservable
+                    {...BasicTheme}
+                    target={targetObservable}
+                    x={(d, idx) => ((d && (d.time - timeOffset) * 0.008) || 0) * rem}
+                    element={BasicNode}
+                />
+            </g>
         </svg>
     );
 }
