@@ -1,5 +1,5 @@
 import React, { ElementType } from 'react';
-import { DrawObservableElementProps } from './DrawObservable';
+import { DrawObservableElementProps } from './DrawObservableHistory';
 import { LifecycleEntry, isLifecycleCompleteEntry, isLifecycleErrorEntry, isLifecycleContinuesEntry, isLifecycleDatumEntry } from 'rxjs-visualizer';
 
 export type LifetimeTheme<TTheme> =
