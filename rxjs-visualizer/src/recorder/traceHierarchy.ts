@@ -1,4 +1,4 @@
-import { Observable, isObservable, OperatorFunction, of } from "rxjs";
+import { Observable, isObservable, OperatorFunction, of, PartialObserver, Unsubscribable, UnaryFunction } from "rxjs";
 import { mergeAll, map, startWith } from "rxjs/operators";
 import { LifecycleEntry, recordLifecycle, isLifecycleDatumEntry } from "./recordLifecycle";
 
@@ -22,19 +22,18 @@ function createDatum<T>(observable: number, datum: T): ObservableDatum<T> {
     return { type: observableDatumType, observable, datum: datum as any };
 }
 
-type UnrollObservable<T> =
-    T extends Observable<infer U> ? U : T;
+type NestedObservable<T> = Observable<T | NestedObservable<T>>;
 
 export type ObservableChainData<T> =
     | ObservableReference
-    | ObservableDatum<LifecycleEntry<UnrollObservable<UnrollObservable<UnrollObservable<UnrollObservable<UnrollObservable<T>>>>>>>;
+    | ObservableDatum<LifecycleEntry<T>>;
 
-export function traceHierarchy<T>(): OperatorFunction<T, ObservableChainData<T>> {
+export function traceHierarchy<T>(): OperatorFunction<T | NestedObservable<T>, ObservableChainData<T>> {
     let nextObservable = 0;
     function dothething<T>(currentIndex: number) {
-        return (orig: Observable<T>): Observable<ObservableChainData<T>> => orig.pipe(
+        return (orig: NestedObservable<T>): Observable<ObservableChainData<T>> => orig.pipe(
             recordLifecycle(),
-            map((data: LifecycleEntry<any>): Observable<any> => {
+            map((data: LifecycleEntry<T | NestedObservable<T>>): Observable<any> => {
                 if (isLifecycleDatumEntry(data) && isObservable<any>(data.datum)) {
                     const newIndex = nextObservable++;
                     return data.datum.pipe(dothething(newIndex), startWith(createRef(currentIndex, newIndex)), );
@@ -45,7 +44,7 @@ export function traceHierarchy<T>(): OperatorFunction<T, ObservableChainData<T>>
                 }
             }),
             mergeAll()
-        ) as Observable<any>;
+        );
     }
 
     return dothething(nextObservable++);
