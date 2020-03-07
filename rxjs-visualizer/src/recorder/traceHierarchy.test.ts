@@ -168,4 +168,42 @@ describe("traceHierarchy", () => {
       { type: observableDatumType, observable: 3, datum: { complete: true }, time: 23 }
     ]);
   });
+
+  it("respects timeouts", () => {
+    const scheduler = new FakeScheduler();
+    const history = record(
+      interval(5, scheduler).pipe(
+        take(5),
+        map(idx =>
+          interval(4, scheduler).pipe(
+            take(2),
+            map(idx2 => ({ idx, idx2 }))
+          )
+        ),
+        traceHierarchy(19.5, scheduler),
+        addTime(scheduler),
+        map(collapseTime)
+      ),
+      () => scheduler.execute()
+    );
+
+    expect(history).toEqual([
+      { type: observableDatumType, observable: 0, datum: { start: true }, time: 0 },
+      { type: observableReferenceType, observable: 0, child: 1, time: 5 },
+      { type: observableDatumType, observable: 1, datum: { start: true }, time: 5 },
+      { type: observableDatumType, observable: 1, datum: { datum: { idx: 0, idx2: 0 } }, time: 9 },
+      { type: observableReferenceType, observable: 0, child: 2, time: 10 },
+      { type: observableDatumType, observable: 2, datum: { start: true }, time: 10 },
+      { type: observableDatumType, observable: 1, datum: { datum: { idx: 0, idx2: 1 } }, time: 13 },
+      { type: observableDatumType, observable: 1, datum: { complete: true }, time: 13 },
+      { type: observableDatumType, observable: 2, datum: { datum: { idx: 1, idx2: 0 } }, time: 14 },
+      { type: observableReferenceType, observable: 0, child: 3, time: 15 },
+      { type: observableDatumType, observable: 3, datum: { start: true }, time: 15 },
+      { type: observableDatumType, observable: 2, datum: { datum: { idx: 1, idx2: 1 } }, time: 18 },
+      { type: observableDatumType, observable: 2, datum: { complete: true }, time: 18 },
+      { type: observableDatumType, observable: 3, datum: { datum: { idx: 2, idx2: 0 } }, time: 19 },
+      { type: observableDatumType, observable: 0, datum: { continues: true }, time: 19.5 },
+      { type: observableDatumType, observable: 3, datum: { continues: true }, time: 19.5 }
+    ]);
+  });
 });

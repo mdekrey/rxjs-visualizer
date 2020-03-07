@@ -1,12 +1,11 @@
 import React from 'react';
-import { interval, concat, timer } from 'rxjs';
-import { take, filter, map } from 'rxjs/operators';
+import { interval } from 'rxjs';
+import { take, map } from 'rxjs/operators';
 import { BasicNode } from '../utils/BasicNode';
 import { BasicTheme } from '../utils/BasicTheme';
-import { DrawTimeObservable } from '../utils/DrawTimeObservable';
 import { DrawNestedObservable } from '../utils/DrawNestedObservable';
 
-const simpleObservable = concat(interval(500).pipe(map(_ => interval(100).pipe(take(20))), take(10)), timer(500).pipe(filter(() => false)));
+const simpleObservable = interval(500).pipe(map(v => interval(100).pipe(take(20), map(v2 => v + v2))));
 
 export function BasicExample() {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);

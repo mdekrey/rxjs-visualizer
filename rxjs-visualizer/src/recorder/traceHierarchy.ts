@@ -1,4 +1,4 @@
-import { Observable, isObservable, OperatorFunction, of, PartialObserver, Unsubscribable, UnaryFunction } from "rxjs";
+import { Observable, isObservable, OperatorFunction, of, PartialObserver, Unsubscribable, UnaryFunction, SchedulerLike, asyncScheduler } from "rxjs";
 import { mergeAll, map, startWith } from "rxjs/operators";
 import { LifecycleEntry, recordLifecycle, isLifecycleDatumEntry } from "./recordLifecycle";
 
@@ -28,11 +28,15 @@ export type ObservableChainData<T> =
     | ObservableReference
     | ObservableDatum<LifecycleEntry<T>>;
 
-export function traceHierarchy<T>(timeout?: number): OperatorFunction<T | NestedObservable<T>, ObservableChainData<T>> {
+export function traceHierarchy<T>(
+    timeout?: number,
+    scheduler: SchedulerLike = asyncScheduler
+): OperatorFunction<T | NestedObservable<T>, ObservableChainData<T>> {
+    const initial = scheduler.now();
     let nextObservable = 0;
     function dothething<T>(currentIndex: number) {
         return (orig: NestedObservable<T>): Observable<ObservableChainData<T>> => orig.pipe(
-            recordLifecycle(timeout),
+            recordLifecycle(timeout && (timeout + initial - scheduler.now()), scheduler),
             map((data: LifecycleEntry<T | NestedObservable<T>>): Observable<any> => {
                 if (isLifecycleDatumEntry(data) && isObservable<any>(data.datum)) {
                     const newIndex = nextObservable++;
