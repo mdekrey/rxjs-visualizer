@@ -14,7 +14,7 @@ export type DrawHistoryProps<TDatum, TTheme> = {
     keyGenerator?: DrawCallback<TDatum, string | number>;
     element: ElementType<DrawElementProps<TDatum, TTheme>>;
     children?: never;
-    observableLine: ElementType<{ theme: TTheme, lineMinX: number, lineMaxX: number }>;
+    observableLine: ElementType<{ theme: TTheme, lineMinX: number, lineMaxX: number, lineMinY: number, lineMaxY: number }>;
 }
 
 export function DrawHistory<TDatum, TTheme>({
@@ -26,12 +26,14 @@ export function DrawHistory<TDatum, TTheme>({
     x,
     y,
 }: DrawHistoryProps<TDatum, TTheme>) {
-    const lineMin = Math.min(Number.MAX_SAFE_INTEGER, ...history.map(({ datum, index }) => x(datum, index)));
-    const lineMax = Math.max(lineMin, ...history.map(({ datum, index }) => x(datum, index)));
+    const lineMinX = Math.min(Number.MAX_SAFE_INTEGER, ...history.map(({ datum, index }) => x(datum, index)));
+    const lineMaxX = Math.max(lineMinX, ...history.map(({ datum, index }) => x(datum, index)));
+    const lineMinY = Math.min(Number.MAX_SAFE_INTEGER, ...history.map(({ datum, index }) => y(datum, index)));
+    const lineMaxY = Math.max(lineMinY, ...history.map(({ datum, index }) => y(datum, index)));
 
     return (
         <g>
-            <LineElem theme={theme} lineMinX={lineMin} lineMaxX={lineMax} />
+            <LineElem theme={theme} lineMinX={lineMinX} lineMaxX={lineMaxX} lineMinY={lineMinY} lineMaxY={lineMaxY} />
             {history.map(({ datum, index }) =>
                 <g key={keyGenerator(datum, index)} style={{ transform: `translate(${x(datum, index)}px, ${y(datum, index)}px)` }}>
                     <Element theme={theme} datum={datum} index={index} />

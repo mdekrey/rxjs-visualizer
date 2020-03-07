@@ -6,13 +6,13 @@ import { BasicTheme } from '../utils/BasicTheme';
 import { DrawTimeObservable } from '../utils/DrawTimeObservable';
 import { DrawNestedObservable } from '../utils/DrawNestedObservable';
 
-const simpleObservable = concat(interval(500).pipe(map(_ => interval(500)), take(10)), timer(500).pipe(filter(() => false)));
+const simpleObservable = concat(interval(500).pipe(map(_ => interval(100).pipe(take(20))), take(10)), timer(500).pipe(filter(() => false)));
 
 export function BasicExample() {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
     const height = 2.625;
     return (
-        <svg style={{ width: "42.5rem", height: `${height}rem` }}>
+        <svg style={{ width: "42.5rem", height: `42.5rem` }}>
             <g style={{ transform: `translate(0px, ${height / 2}rem)` }}>
                 <DrawNestedObservable target={simpleObservable}
                     {...BasicTheme}

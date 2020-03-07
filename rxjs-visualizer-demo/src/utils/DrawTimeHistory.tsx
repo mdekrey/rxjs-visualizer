@@ -1,14 +1,14 @@
 import React, { useMemo, useCallback, ElementType, ComponentType } from "react";
 import { LifecycleEntry, WithTime } from "rxjs-visualizer";
-import { NodeOrTerminator } from "./NodeOrTerminator";
+import { NodeOrTerminator, LifetimePlaceholder } from "./NodeOrTerminator";
 import { DrawElementProps, DrawHistory, DrawHistoryProps } from "./DrawHistory";
 import { SortedHistoryEntry } from "./useRxHistory";
 
-export type DrawTimeHistoryBaseElemProps<TDatum, TTheme> = DrawHistoryProps<WithTime<LifecycleEntry<TDatum>>, TTheme>;
+export type DrawTimeHistoryBaseElemProps<TDatum, TTheme> = DrawHistoryProps<WithTime<LifecycleEntry<TDatum> | LifetimePlaceholder>, TTheme>;
 
 export type DrawTimeHistoryProps<TDatum, TTheme, TBase extends DrawTimeHistoryBaseElemProps<TDatum, TTheme>> =
     {
-        history: SortedHistoryEntry<WithTime<LifecycleEntry<TDatum>>>[];
+        history: SortedHistoryEntry<WithTime<LifecycleEntry<TDatum> | LifetimePlaceholder>>[];
         timeOffset: number;
         timeSizeFactorX: number;
         timeSizeFactorY: number;
@@ -42,7 +42,7 @@ export function DrawTimeHistory<TDatum, TTheme, TBase extends DrawTimeHistoryBas
     const x = useCallback(timeFactor(timeSizeFactorX, timeOffset), [timeSizeFactorX, timeOffset]);
     const y = useCallback(timeFactor(timeSizeFactorY, timeOffset), [timeSizeFactorY, timeOffset]);
     const resultElement = useMemo(() => TimeDatumSelector(NodeOrTerminator(element)), [element]);
-    const InnerDraw = drawHistory as ComponentType<DrawTimeHistoryBaseElemProps<TDatum, TTheme>>;
+    const InnerDraw = drawHistory as ComponentType<any>;
     return (
         <InnerDraw
             {...props}
