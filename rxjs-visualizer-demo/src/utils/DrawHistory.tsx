@@ -1,23 +1,23 @@
 import React, { ElementType } from 'react';
 import { indexKeyGenerator } from './indexKeyGenerator';
 
-export type DrawObservableCallback<TDatum, TReturns> =
+export type DrawCallback<TDatum, TReturns> =
     (datum: TDatum, index: number) => TReturns;
 
-export type DrawObservableElementProps<TDatum, TTheme> = { theme: TTheme, datum: TDatum, index: number };
+export type DrawElementProps<TDatum, TTheme> = { theme: TTheme, datum: TDatum, index: number };
 
-export type DrawObservableHistoryProps<TDatum, TTheme> = {
+export type DrawHistoryProps<TDatum, TTheme> = {
     theme: TTheme;
     history: { datum: TDatum, index: number }[];
-    x: DrawObservableCallback<TDatum, number>;
-    y: DrawObservableCallback<TDatum, number>;
-    keyGenerator?: DrawObservableCallback<TDatum, string | number>;
-    element: ElementType<DrawObservableElementProps<TDatum, TTheme>>;
+    x: DrawCallback<TDatum, number>;
+    y: DrawCallback<TDatum, number>;
+    keyGenerator?: DrawCallback<TDatum, string | number>;
+    element: ElementType<DrawElementProps<TDatum, TTheme>>;
     children?: never;
     observableLine: ElementType<{ theme: TTheme, lineMinX: number, lineMaxX: number }>;
 }
 
-export function DrawObservableHistory<TDatum, TTheme>({
+export function DrawHistory<TDatum, TTheme>({
     element: Element,
     observableLine: LineElem,
     theme,
@@ -25,7 +25,7 @@ export function DrawObservableHistory<TDatum, TTheme>({
     history,
     x,
     y,
-}: DrawObservableHistoryProps<TDatum, TTheme>) {
+}: DrawHistoryProps<TDatum, TTheme>) {
     const lineMin = Math.min(Number.MAX_SAFE_INTEGER, ...history.map(({ datum, index }) => x(datum, index)));
     const lineMax = Math.max(lineMin, ...history.map(({ datum, index }) => x(datum, index)));
 

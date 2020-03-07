@@ -1,12 +1,12 @@
 import React from 'react';
 import { Observable } from 'rxjs';
-import { DrawObservableCallback, DrawObservableHistoryProps, DrawObservableHistory } from './DrawObservableHistory';
+import { DrawCallback, DrawHistoryProps, DrawHistory } from './DrawHistory';
 import { useSortedRxHistory } from './useRxHistory';
 
 export type DrawObservableProps<TDatum, TTheme> = {
     target: Observable<TDatum>;
-    sortOrder: DrawObservableCallback<TDatum, number>;
-} & Omit<DrawObservableHistoryProps<TDatum, TTheme>, "history">;
+    sortOrder: DrawCallback<TDatum, number>;
+} & Omit<DrawHistoryProps<TDatum, TTheme>, "history">;
 
 export function DrawObservable<TDatum, TTheme>({
     target,
@@ -14,5 +14,5 @@ export function DrawObservable<TDatum, TTheme>({
     ...props
 }: DrawObservableProps<TDatum, TTheme>) {
     const history = useSortedRxHistory(target, sortOrder);
-    return <DrawObservableHistory history={history} {...props} />;
+    return <DrawHistory history={history} {...props} />;
 }

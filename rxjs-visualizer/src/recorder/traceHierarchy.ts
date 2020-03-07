@@ -22,17 +22,17 @@ function createDatum<T>(observable: number, datum: T): ObservableDatum<T> {
     return { type: observableDatumType, observable, datum: datum as any };
 }
 
-type NestedObservable<T> = Observable<T | NestedObservable<T>>;
+export type NestedObservable<T> = Observable<T | NestedObservable<T>>;
 
 export type ObservableChainData<T> =
     | ObservableReference
     | ObservableDatum<LifecycleEntry<T>>;
 
-export function traceHierarchy<T>(): OperatorFunction<T | NestedObservable<T>, ObservableChainData<T>> {
+export function traceHierarchy<T>(timeout?: number): OperatorFunction<T | NestedObservable<T>, ObservableChainData<T>> {
     let nextObservable = 0;
     function dothething<T>(currentIndex: number) {
         return (orig: NestedObservable<T>): Observable<ObservableChainData<T>> => orig.pipe(
-            recordLifecycle(),
+            recordLifecycle(timeout),
             map((data: LifecycleEntry<T | NestedObservable<T>>): Observable<any> => {
                 if (isLifecycleDatumEntry(data) && isObservable<any>(data.datum)) {
                     const newIndex = nextObservable++;

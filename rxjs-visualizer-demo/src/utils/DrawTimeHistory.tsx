@@ -1,28 +1,28 @@
 import React, { useMemo, useCallback, ElementType, ComponentType } from "react";
 import { LifecycleEntry, WithTime } from "rxjs-visualizer";
 import { NodeOrTerminator } from "./NodeOrTerminator";
-import { DrawObservableElementProps, DrawObservableHistory, DrawObservableHistoryProps } from "./DrawObservableHistory";
+import { DrawElementProps, DrawHistory, DrawHistoryProps } from "./DrawHistory";
 import { SortedHistoryEntry } from "./useRxHistory";
 
-export type DrawTimeHistoryBaseElemProps<TDatum, TTheme> = DrawObservableHistoryProps<WithTime<LifecycleEntry<TDatum>>, TTheme>;
+export type DrawTimeHistoryBaseElemProps<TDatum, TTheme> = DrawHistoryProps<WithTime<LifecycleEntry<TDatum>>, TTheme>;
 
 export type DrawTimeHistoryProps<TDatum, TTheme, TBase extends DrawTimeHistoryBaseElemProps<TDatum, TTheme>> =
-    Omit<TBase, "x" | "history" | "y" | "datumSelector" | "sortOrder" | "element"> & {
+    {
         history: SortedHistoryEntry<WithTime<LifecycleEntry<TDatum>>>[];
         timeOffset: number;
         timeSizeFactorX: number;
         timeSizeFactorY: number;
-        element: ElementType<DrawObservableElementProps<TDatum, TTheme>>;
+        element: ElementType<DrawElementProps<TDatum, TTheme>>;
         drawHistory?: ComponentType<TBase>;
-    };
+    } & Omit<TBase, "x" | "history" | "y" | "datumSelector" | "sortOrder" | "element">;
 
 export function timeFactor(timeSizeFactor: number, timeOffset: number) {
     return (d: WithTime<LifecycleEntry<any>>) => (d && (d.time - timeOffset) * timeSizeFactor) || 0;
 }
 
 function TimeDatumSelector<TDatum, TTheme>(
-    BaseElement: ElementType<DrawObservableElementProps<TDatum, TTheme>>
-): ElementType<DrawObservableElementProps<WithTime<TDatum>, TTheme>> {
+    BaseElement: ElementType<DrawElementProps<TDatum, TTheme>>
+): ElementType<DrawElementProps<WithTime<TDatum>, TTheme>> {
     return ({ datum, ...props }) => {
         return (
             <BaseElement {...props} datum={datum.original} />
@@ -36,15 +36,15 @@ export function DrawTimeHistory<TDatum, TTheme, TBase extends DrawTimeHistoryBas
     timeSizeFactorX,
     timeSizeFactorY,
     element,
-    drawHistory = DrawObservableHistory,
+    drawHistory = DrawHistory,
     ...props
 }: DrawTimeHistoryProps<TDatum, TTheme, TBase>) {
     const x = useCallback(timeFactor(timeSizeFactorX, timeOffset), [timeSizeFactorX, timeOffset]);
     const y = useCallback(timeFactor(timeSizeFactorY, timeOffset), [timeSizeFactorY, timeOffset]);
     const resultElement = useMemo(() => TimeDatumSelector(NodeOrTerminator(element)), [element]);
-    const DrawHistory = drawHistory as ComponentType<DrawTimeHistoryBaseElemProps<TDatum, TTheme>>;
+    const InnerDraw = drawHistory as ComponentType<DrawTimeHistoryBaseElemProps<TDatum, TTheme>>;
     return (
-        <DrawHistory
+        <InnerDraw
             {...props}
             history={history}
             x={x}

@@ -1,5 +1,5 @@
 import React, { ElementType } from 'react';
-import { DrawObservableElementProps } from './DrawObservableHistory';
+import { DrawElementProps } from './DrawHistory';
 import { LifecycleEntry, isLifecycleCompleteEntry, isLifecycleErrorEntry, isLifecycleContinuesEntry, isLifecycleDatumEntry } from 'rxjs-visualizer';
 
 export type LifetimeTheme<TTheme> =
@@ -10,8 +10,8 @@ export type LifetimeTheme<TTheme> =
     } & TTheme;
 
 export function NodeOrTerminator<TDatum, TTheme extends LifetimeTheme<any>>(
-    BaseElement: ElementType<DrawObservableElementProps<TDatum, TTheme>>
-): ElementType<DrawObservableElementProps<LifecycleEntry<TDatum>, TTheme>> {
+    BaseElement: ElementType<DrawElementProps<TDatum, TTheme>>
+): ElementType<DrawElementProps<LifecycleEntry<TDatum>, TTheme>> {
     return (props) => {
         return (
             isLifecycleCompleteEntry(props.datum) ? <props.theme.completeTerminator theme={props.theme} />

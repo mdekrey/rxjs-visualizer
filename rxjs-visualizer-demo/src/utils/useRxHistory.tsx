@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Observable } from 'rxjs';
 import { accumulate } from 'rxjs-visualizer';
 import { useRx } from './useRx';
-import { DrawObservableCallback } from './DrawObservableHistory';
+import { DrawCallback } from './DrawHistory';
 
 export type SortedHistoryEntry<TDatum> = {
     index: number,
@@ -15,9 +15,13 @@ export function useRxHistory<TDatum>(target: Observable<TDatum>): TDatum[] {
     return history;
 }
 
-export function useSortedRxHistory<TDatum>(target: Observable<TDatum>, sortOrder: DrawObservableCallback<TDatum, number>): SortedHistoryEntry<TDatum>[] {
+export function sortRxHistory<TDatum>(history: TDatum[], sortOrder: DrawCallback<TDatum, number>) {
+    return history.map((datum, index) => ({ datum, index, sort: sortOrder(datum, index) }))
+        .sort((a, b) => a.sort - b.sort);
+}
+
+export function useSortedRxHistory<TDatum>(target: Observable<TDatum>, sortOrder: DrawCallback<TDatum, number>): SortedHistoryEntry<TDatum>[] {
     const history = useRxHistory(target);
-    const sorted = useMemo(() => history.map((datum, index) => ({ datum, index, sort: sortOrder(datum, index) }))
-        .sort((a, b) => a.sort - b.sort), [history, sortOrder]);
+    const sorted = useMemo(() => sortRxHistory(history, sortOrder), [history, sortOrder]);
     return sorted;
 }
